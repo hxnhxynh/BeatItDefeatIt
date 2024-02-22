@@ -1,6 +1,6 @@
 import pygame
 
-from . import Drawable, Sequence
+from . import Drawable, Sequence, Animated
 
 from utils import vec, RESOLUTION
 
@@ -15,6 +15,8 @@ class GameEngine(object):
         self.background = Drawable((0,0), "dasKlubBackground.png")
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-16)),
                                   NUMARROWS)
+        #self.timingBack = Drawable((100, 100), "timingBack.png")
+        #self.cd = Drawable((self.timingBack.position+(116,0)), "cd.png", (0,0))
         self.points = 0
         self.font =  pygame.font.SysFont("Harlow Solid", 15)
         self.pointDisplay = self.font.render("Score count: 0",
@@ -28,6 +30,8 @@ class GameEngine(object):
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
         self.sequence.draw(drawSurface)
+        #self.timingBack.draw(drawSurface)
+        #self.cd.draw(drawSurface)
         drawSurface.blit(self.pointDisplay, (0,0))
         drawSurface.blit(self.instructions, (RESOLUTION[0]/2-(self.instructions.get_width()//2), RESOLUTION[1]-50))
 
