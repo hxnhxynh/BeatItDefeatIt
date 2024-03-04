@@ -27,8 +27,6 @@ class TimingBar(object):
         self.goodOffSet = 6
         self.greatOffSet = 11
         self.perfOffset = 15
-        
-        #self.cd.position + (13,0)
 
     def draw(self, drawSurface):
         self.back.draw(drawSurface)
@@ -36,6 +34,7 @@ class TimingBar(object):
         self.bar.draw(drawSurface)
 
     def update(self, seconds):
+        self.cd.update(seconds)
         self.bar.update(seconds)
         if self.bar.position[0] - self.size[0] > 0:
             self.bar = Mobile(self.position, "timingBar.png")
@@ -49,28 +48,28 @@ class TimingBar(object):
             cdMid = cdStart + 16
             if current >= cdStart:
                 if current <= self.goodOffSet + cdStart :
-                    print("good, + 300 to", self.score)
+                    #print("good, + 300 to", self.score)
                     self.score = 300
                     self.scoreType = "good"
                 elif current <= self.greatOffSet + cdStart:
-                    print("great, + 500 to", self.score)
+                    #print("great, + 500 to", self.score)
                     self.score = 500
                     self.scoreType = "great"
                 elif current <= self.perfOffset + cdStart:
-                    print("perf, + 1000 to", self.score)
+                    #print("perf, + 1000 to", self.score)
                     self.score = 1000
                     self.scoreType = "perf"
             elif current >= cdMid:
                 if current <= self.greatOffSet-1 + cdMid:
-                    print("great, + 500 to", self.score)
+                    #print("great, + 500 to", self.score)
                     self.score = 500
                     self.scoreType = "great"
                 elif current <= self.goodOffSet + cdMid:
-                    print("good, + 300 to", self.score)
+                    #print("good, + 300 to", self.score)
                     self.score = 300
                     self.scoreType = "good"
             else:
-                print("bad, + 100 to", self.score)
+                #print("bad, + 100 to", self.score)
                 self.score = 100
                 self.scoreType = "bad"
 
