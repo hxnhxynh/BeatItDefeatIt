@@ -2,7 +2,8 @@
 # Author: Han Huynh
 
 import pygame
-from gameObjects import GameEngine
+from UI import ScreenManager
+#from gameObjects import GameEngine
 from utils import SpriteManager, RESOLUTION, UPSCALED
 
 def main():
@@ -16,7 +17,7 @@ def main():
     screen = pygame.display.set_mode(list(map(int, UPSCALED)))
     drawSurface = pygame.Surface(list(map(int, RESOLUTION)))
   
-    gameEngine = GameEngine()
+    gameEngine = ScreenManager()
     
     RUNNING = True
     
@@ -38,7 +39,10 @@ def main():
                 # break out of loop!
                 RUNNING = False
             else:
-                gameEngine.handleEvent(event)
+                result = gameEngine.handleEvent(event)
+
+                if result == "exit":
+                    RUNNING = False
         
         gameClock.tick(60)
         seconds = gameClock.get_time() / 1000
