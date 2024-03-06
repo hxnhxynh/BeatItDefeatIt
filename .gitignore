@@ -1,0 +1,9 @@
+/bin/
+*.class
+.project
+.classpath
+.DS_Store
+.settings/
+.loadpath
+.recommenders
+**/.DS_Store
