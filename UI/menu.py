@@ -58,10 +58,31 @@ class MouseMenu(AbstractMenu):
         super().__init__(background, fontName, color)
         self.hoverColor = hoverColor
         self.hovered = {}
+        self.unlocked = {}
+        self.images = []
     
-    def addOption(self, key, text, position, center=None):
+    def addOption(self, key, text, position, center=None, unlocked=True):
         super().addOption(key, text, position, center)
-        self.hovered[key] = False
+        self.hovered[key]= False
+        self.unlocked[key] = unlocked
+
+
+    def addImage(self, position=vec(0,0), fileName="", offset=None, center=None):
+        image = Drawable(position, fileName, offset)
+        self.images.append(image)
+        imageSize = image.getSize()
+
+        if center != None:
+            if center == "both":
+                offset = imageSize // 2
+            elif center == "horizontal":
+                offset = vec(imageSize[0] // 2, 0)
+            elif center == "vertical":
+                offset = vec(0, imageSize[1] // 2)
+            else:
+                offset = vec(0,0)
+            
+            image.position -= offset
 
     def handleEvent(self, event):
         for key in self.options.keys():
@@ -69,13 +90,20 @@ class MouseMenu(AbstractMenu):
             #print(option.hitBox)
             #print(option.position)
             if option.hitBox.collidepoint(vec(*pygame.mouse.get_pos())//SCALE):
-                self.hovered[key] = True
-                self.options[key].changeColor(self.hoverColor)
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    return key
+                if self.unlocked[key]:
+                    self.hovered[key] = True
+                    option.changeColor(self.hoverColor)
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        return key
 
 
             else:
                 self.hovered[key] = False
-                self.options[key].changeColor(self.color)
-                    
+                option.changeColor(self.color)
+
+    def draw(self,drawSurface):
+        super().draw(drawSurface)
+        if len(self.images) != 0:
+            for image in self.images:
+                image.draw(drawSurface)
+

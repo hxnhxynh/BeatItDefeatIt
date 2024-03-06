@@ -10,11 +10,17 @@ class ScreenManager(object):
         self.state = ScreenManagerFSM(self)
 
         # startMenu portion
-        self.startMenu = MouseMenu("background.png")
+        self.startMenu = MouseMenu("background.png", hoverColor = (32, 214, 199))
         self.startMenu.addOption(key="start", 
+                                 text="Game Mode", 
+                                 position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-70)),
+                                 center="both", 
+                                 unlocked=False)
+        self.startMenu.addOption(key="tutorial", 
                                  text="Tutorial", 
-                                 position=(RESOLUTION//2 - vec(0,50)),
+                                 position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-50)),
                                  center="both")
+        self.startMenu.addImage((RESOLUTION//2 - vec(0,45)), "logo.png", center="both")
 
 
     def draw(self, drawSurface):
@@ -33,7 +39,7 @@ class ScreenManager(object):
         elif self.state == "startMenu":
             choice = self.startMenu.handleEvent(event)
 
-            if choice == "start":
+            if choice == "tutorial":
                 self.state.startGame()
     
     def update(self, seconds):
