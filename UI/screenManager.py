@@ -1,12 +1,13 @@
 from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION
-from gameObjects.engine import GameEngine
+from gameObjects.engine import GameEngine, TutorialEngine
 from pygame.locals import *
 
 class ScreenManager(object):
     def __init__(self):
         self.game = GameEngine()
+        self.tutorial = TutorialEngine()
         self.state = ScreenManagerFSM(self)
 
         # startMenu portion
@@ -26,9 +27,13 @@ class ScreenManager(object):
     def draw(self, drawSurface):
         if self.state.isInGame():
             self.game.draw(drawSurface)
+
+        elif self.state.isInTutorial() :
+            self.tutorial.draw(drawSurface)
             
         elif self.state == "startMenu":
             self.startMenu.draw(drawSurface)
+        
 
     def handleEvent(self, event):
         if self.state in ["game"]:
@@ -36,14 +41,23 @@ class ScreenManager(object):
                 self.state.quitGame()
             else:
                 self.game.handleEvent(event)
+
+        elif self.state in ["tutorial"]:
+            if event.type == KEYDOWN and event.key == K_m:
+                self.state.quitTutorial()
+            else:
+                self.tutorial.handleEvent(event)
+
         elif self.state == "startMenu":
             choice = self.startMenu.handleEvent(event)
 
             if choice == "tutorial":
-                self.state.startGame()
+                self.state.startTutorial()
     
     def update(self, seconds):
         if self.state == "game":
             self.game.update(seconds)
         elif self.state == "startMenu":
             self.startMenu.update(seconds)
+        elif self.state == "tutorial":
+            self.tutorial.update(seconds)
