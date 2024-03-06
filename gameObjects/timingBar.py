@@ -23,7 +23,7 @@ class TimingBar(object):
         self.bar = Mobile(position, "timingBar.png")
         self.bar.velocity= vec(40,0)
         self.score = 100 #default bad score
-        self.scoreType = "bad"
+        self.scoreType = None
         self.goodOffSet = 6
         self.greatOffSet = 11
         self.perfOffset = 15
