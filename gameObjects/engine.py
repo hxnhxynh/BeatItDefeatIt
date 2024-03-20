@@ -103,7 +103,7 @@ class TutorialEngine(object):
                                              False,
                                              (255,255,255))
         #self.instructions = self.font1.render("Press the arrow keys in order to earn points!", False, (255,255,255))
-        self.scoreNotifs = {"bad" : self.font2.render("Bad! -100 points", 
+        self.scoreNotifs = {"bad" : self.font2.render("Bad! +100 points", 
                                                      False, 
                                                      (245, 245, 245)),
                             "good": self.font2.render("Good job! +300 points",
@@ -114,7 +114,10 @@ class TutorialEngine(object):
                                                       (0, 255, 0)),
                             "perf": self.font2.render("Perfect! +1000 points", 
                                                      False,
-                                                     (255, 0, 255))
+                                                     (255, 0, 255)),
+                            "miss": self.font2.render("Miss! -100 points",
+                                                      False,
+                                                      (245, 245, 245))
                             }
     
     def draw(self, drawSurface):        
@@ -161,7 +164,7 @@ class TutorialEngine(object):
 
                     # penalty for pressing space bar w/o completing sequence
                     self.points -= 100
-                    self.timingBar.scoreType = "bad"
+                    self.timingBar.scoreType = "miss"
                     self.pointDisplay = self.font1.render("Score count: " + str(self.points),
                                                     False,
                                                     (255,255,255))

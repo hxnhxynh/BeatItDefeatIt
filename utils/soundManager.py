@@ -29,7 +29,7 @@ class SoundManager(object):
         _MUSIC_FOLDER = "music"
         
         def __init__(self):
-            self.BGMs = {"60 BPM.mp3"}
+            self.BGMs = {"60 BPM.mp3", "Morning.mp3"}
             self.dict = {}
             self.currentlyPlaying = None
         

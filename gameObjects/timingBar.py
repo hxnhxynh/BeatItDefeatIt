@@ -6,10 +6,11 @@ from utils import vec
 
 class TimingBar(object):
 
-    def __init__(self, position=vec(0,0)):
+    def __init__(self, position=vec(0,0), tempo=60):
         # basic info of timing bar
         self.position = position
         self.size = position + (160, 32)
+        self.tempo = tempo
         self.complete = False
 
         # set up back
@@ -21,7 +22,9 @@ class TimingBar(object):
 
         # set up hitbox boundaries
         self.bar = Mobile(position, "timingBar.png")
-        self.bar.velocity= vec(40,0)
+        # need to move bar to 125 pixels to hit center of CD
+        # 154 pixels = reset
+        self.bar.velocity= vec(125/(tempo/15),0)
         self.score = 100 #default bad score
         self.scoreType = None
         self.goodOffSet = 6
@@ -36,9 +39,9 @@ class TimingBar(object):
     def update(self, seconds):
         self.cd.update(seconds)
         self.bar.update(seconds)
-        if self.bar.position[0] - self.size[0] > 0:
+        if self.bar.position[0] - (self.position[0]+154) > 0:
             self.bar = Mobile(self.position, "timingBar.png")
-            self.bar.velocity= vec(40,0)
+            self.bar.velocity= vec(125/(self.tempo/15),0)
 
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
