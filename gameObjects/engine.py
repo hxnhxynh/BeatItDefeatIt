@@ -1,6 +1,6 @@
 import pygame
 from . import Drawable, Sequence, TimingBar
-from utils import vec, RESOLUTION, rectAdd, SCALE
+from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager
 
 NUMARROWS = 5
 SEQUENCE_SIZE = vec(32*NUMARROWS, 32)
@@ -80,7 +80,8 @@ class GameEngine(object):
 class TutorialEngine(object):
     import pygame
 
-    def __init__(self):       
+    def __init__(self):   
+        self.paused = False    
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "dasKlubBackground.png")
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
@@ -160,6 +161,7 @@ class TutorialEngine(object):
 
                     # penalty for pressing space bar w/o completing sequence
                     self.points -= 100
+                    self.timingBar.scoreType = "bad"
                     self.pointDisplay = self.font1.render("Score count: " + str(self.points),
                                                     False,
                                                     (255,255,255))
@@ -168,14 +170,19 @@ class TutorialEngine(object):
                 self.ok = self.font2.render("Let's play!", False, (0, 0, 0))
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.start = True
+                    sm = SoundManager.getInstance()
+                    sm.playBGM("60 BPM.mp3")
             else:
                 self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
     
     def update(self, seconds):
         if self.start:
-            self.timingBar.update(seconds)
+            if not self.paused:
+                self.timingBar.update(seconds)
         else:
             self.testBar.update(seconds)
         #self.sequence.update(seconds)
         #Drawable.updateOffset(self.sequence, self.size)
+
+
 

@@ -1,6 +1,6 @@
 from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
-from utils import vec, RESOLUTION
+from utils import vec, RESOLUTION, SoundManager
 from gameObjects.engine import GameEngine, TutorialEngine
 from pygame.locals import *
 
@@ -45,8 +45,18 @@ class ScreenManager(object):
         elif self.state in ["tutorial"]:
             if event.type == KEYDOWN and event.key == K_m:
                 self.state.quitTutorial()
+            elif event.type == KEYDOWN and event.key == K_p:
+                sm = SoundManager.getInstance()
+                if self.tutorial.paused:
+                    self.tutorial.paused = False
+                    sm.playBGM("60 BPM.mp3")
+                else:
+                    self.tutorial.paused = True
+                    sm.fadeoutBGM(0)
             else:
-                self.tutorial.handleEvent(event)
+                if not self.tutorial.paused:
+                    self.tutorial.handleEvent(event)
+
 
         elif self.state == "startMenu":
             choice = self.startMenu.handleEvent(event)
