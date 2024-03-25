@@ -1,6 +1,7 @@
 import pygame
 from . import Drawable, Sequence, TimingBar
 from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager
+from time import time
 
 NUMARROWS = 5
 SEQUENCE_SIZE = vec(32*NUMARROWS, 32)
@@ -94,7 +95,9 @@ class TutorialEngine(object):
         self.testSeq = Sequence(vec(50, 90), 5)
         self.testBar = TimingBar(vec(50, 197))
         self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
-
+        self.waiting = False
+        self.wait = 4
+        self.count = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)
         self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)))
@@ -123,8 +126,15 @@ class TutorialEngine(object):
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
         if self.start:
-            self.sequence.draw(drawSurface)
             self.timingBar.draw(drawSurface)
+            if self.waiting:
+                if time() - self.count >= self.wait:
+                    self.waiting = False
+                    sm = SoundManager.getInstance()
+                    sm.playBGM("60 BPM.mp3")
+            else:
+                self.sequence.draw(drawSurface)
+                
             drawSurface.blit(self.pointDisplay, (0,0))
             scoreType =  self.timingBar.scoreType
             if scoreType != None:
@@ -151,13 +161,13 @@ class TutorialEngine(object):
                 if self.timingBar.complete: # if sequence is completed and space bar is hit
                     self.timingBar.complete = False
                     self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
-                                        NUMARROWS) # reset sequence
-                    
+                                  NUMARROWS)
                     # increase and display points
                     self.points += self.timingBar.score 
                     self.pointDisplay = self.font1.render("Score count: " + str(self.points),
                                                         False,
-                                                        (255,255,255))
+                                                        (255,255,255)) 
+                    self.counting = True         
             else:
                 if self.timingBar.complete:
                     self.timingBar.complete = False
@@ -173,8 +183,8 @@ class TutorialEngine(object):
                 self.ok = self.font2.render("Let's play!", False, (0, 0, 0))
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.start = True
-                    sm = SoundManager.getInstance()
-                    sm.playBGM("60 BPM.mp3")
+                    self.count = time()
+                    self.waiting = True
             else:
                 self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
     

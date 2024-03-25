@@ -44,6 +44,8 @@ class ScreenManager(object):
 
         elif self.state in ["tutorial"]:
             if event.type == KEYDOWN and event.key == K_m:
+                sm = SoundManager.getInstance()
+                sm.fadeoutBGM(0)
                 self.state.quitTutorial()
             elif event.type == KEYDOWN and event.key == K_p:
                 sm = SoundManager.getInstance()
