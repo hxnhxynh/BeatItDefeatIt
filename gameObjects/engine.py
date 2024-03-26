@@ -96,7 +96,7 @@ class TutorialEngine(object):
         self.testBar = TimingBar(vec(50, 197))
         self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
         self.waiting = False
-        self.wait = 4
+        self.wait = 2.5
         self.count = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)

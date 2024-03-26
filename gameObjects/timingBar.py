@@ -1,5 +1,5 @@
 from pygame.locals import *
-from . import Drawable, Animated, Mobile
+from . import Drawable, Animated, Interpolated
 import pygame
 import numpy as np
 from utils import vec
@@ -17,17 +17,16 @@ class TimingBar(object):
         self.back = Drawable(position, "timingBack.png")
 
         # set up cd
-        self.cd = Animated(position+(128, 0), "cd.png")
+        self.cd = Animated(position+(112, 0), "cd.png")
         self.cd.nFrames = 4
 
         # set up hitbox boundaries
-        self.bar = Mobile(position, "timingBar.png")
-        self.looped = False
-        # need to move bar to 154 pixels to hit center of CD
-        # four beats of 60 bpm = 4 seconds , should move 38.5 pixels per second
-        # when resetting should wait four more seconds before new sequence
+        self.stop = position + (154,0)
+        self.bar = Interpolated(self.position, self.stop, 3, "timingBar.png")
+        # need to move bar to 125 pixels to hit center of CD
+        # every fourth beat of 60 bpm = 4 seconds , should move 38.5 pixels per second
         # 154 pixels = reset
-        self.bar.velocity= vec(38.5,0)
+        #self.bar.velocity= vec(38.5,0)
         self.score = 100 #default bad score
         self.scoreType = None
         self.goodOffSet = 6
@@ -42,11 +41,9 @@ class TimingBar(object):
     def update(self, seconds):
         self.cd.update(seconds)
         self.bar.update(seconds)
-        if self.bar.position[0] - (self.position[0]+154) > 0:
-            self.bar = Mobile(self.position, "timingBar.png")
-            self.bar.velocity= vec(38.5,0)
-            self.looped = True
 
+        if self.bar.position[0] > self.position[0]+154:
+            self.bar.timer = 0
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             print(self.bar.position[0])
