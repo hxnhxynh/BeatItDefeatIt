@@ -1,4 +1,4 @@
-from utils.vector import vec
+from utils import SoundManager
 from . import Drawable
 
 class Interpolated(Drawable):
@@ -8,11 +8,23 @@ class Interpolated(Drawable):
         self.start = start[0]
         self.stop = stop[0]
         self.seconds = seconds
-        self.step = (self.stop-self.start)/self.seconds
+        self.diff = self.stop-self.start
         self.timer = 0
-        self.loop = True
+        self.secTimer = 0
+        self.play = False
 
     def update(self, seconds):
         self.timer += seconds
-        move = self.start + (self.timer * self.step)
+        self.secTimer += seconds
+        if self.play and self.secTimer > 1:
+            self.secTimer -= 1
+            sm = SoundManager.getInstance()
+            sm.playSFX("click.wav")
+        if self.timer > self.seconds:
+            self.timer -= self.seconds
+        percentage = self.timer/self.seconds
+        move = (percentage*self.diff) + self.start
         self.position[0] = move
+
+       
+            

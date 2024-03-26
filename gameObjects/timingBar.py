@@ -22,7 +22,7 @@ class TimingBar(object):
 
         # set up hitbox boundaries
         self.stop = position + (154,0)
-        self.bar = Interpolated(self.position, self.stop, 3, "timingBar.png")
+        self.bar = Interpolated(self.position, self.stop, 4, "timingBar.png")
         # need to move bar to 125 pixels to hit center of CD
         # every fourth beat of 60 bpm = 4 seconds , should move 38.5 pixels per second
         # 154 pixels = reset
@@ -42,11 +42,8 @@ class TimingBar(object):
         self.cd.update(seconds)
         self.bar.update(seconds)
 
-        if self.bar.position[0] > self.position[0]+154:
-            self.bar.timer = 0
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            print(self.bar.position[0])
             self.complete = True
             current = self.bar.position[0]
             cdStart = self.cd.position[0]
