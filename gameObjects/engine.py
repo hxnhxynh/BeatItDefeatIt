@@ -98,6 +98,7 @@ class TutorialEngine(object):
         self.waiting = False
         self.wait = 4
         self.count = 0
+        self.beatTimer = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)
         self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)))
@@ -130,8 +131,8 @@ class TutorialEngine(object):
             if self.waiting:
                 if time() - self.count >= self.wait:
                     self.waiting = False
-                    sm = SoundManager.getInstance()
-                    sm.playBGM("60 BPM.mp3")
+                    self.timingBar.bar.play = True
+                    
             else:
                 self.sequence.draw(drawSurface)
                 
