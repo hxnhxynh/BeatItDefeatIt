@@ -82,7 +82,8 @@ class TutorialEngine(object):
     import pygame
 
     def __init__(self):   
-        self.paused = False    
+        self.paused = False   
+        self.complete = False 
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "dasKlubBackground.png")
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
@@ -95,10 +96,48 @@ class TutorialEngine(object):
         self.testSeq = Sequence(vec(50, 90), 5)
         self.testBar = TimingBar(vec(50, 197))
         self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
-        self.waiting = False
+    
+    def draw(self, drawSurface):        
+        self.background.draw(drawSurface)
+    
+        self.box.draw(drawSurface)
+
+        drawSurface.blit(self.step1, (36, 67))
+        drawSurface.blit(self.step2, (36, 167))
+
+        self.testSeq.draw(drawSurface)
+        self.testBar.draw(drawSurface)
+
+        drawSurface.blit(self.ok, (480, 250))
+        self.okHitBox = rectAdd((460, 250), self.ok.get_rect())
+            
+
+    def handleEvent(self, event):
+        if self.okHitBox.collidepoint(vec(*pygame.mouse.get_pos())//SCALE):
+            self.ok = self.font2.render("Let's play!", False, (0, 0, 0))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.complete = True
+        else:
+            self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
+    
+    def update(self, seconds):
+        if not self.paused:   
+            self.testBar.update(seconds)
+
+
+class TutGameEngine(object):
+    import pygame
+
+    def __init__(self):
+        self.paused = False
+        self.size = vec(*RESOLUTION)
+        self.background = Drawable((0,0), "dasKlubBackground.png")
+        self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
+        self.font2 = pygame.font.SysFont("Arial Black", 15)
+
+        self.waiting = True
         self.wait = 4
-        self.count = 0
-        self.beatTimer = 0
+        self.timer = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)
         self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)))
@@ -124,79 +163,51 @@ class TutorialEngine(object):
                                                       (245, 245, 245))
                             }
     
-    def draw(self, drawSurface):        
+    def draw(self, drawSurface):
         self.background.draw(drawSurface)
-        if self.start:
-            self.timingBar.draw(drawSurface)
-            if self.waiting:
-                if time() - self.count >= self.wait:
-                    self.waiting = False
-                    self.timingBar.bar.play = True
-                    
-            else:
-                self.sequence.draw(drawSurface)
-                
-            drawSurface.blit(self.pointDisplay, (0,0))
-            scoreType =  self.timingBar.scoreType
-            if scoreType != None:
-                scoreNotif = self.scoreNotifs[scoreType]
-                drawSurface.blit(scoreNotif, (RESOLUTION[0]/2-(scoreNotif.get_width()//2), RESOLUTION[1]-70))
+        self.timingBar.draw(drawSurface)
+        if self.waiting:
+            if self.timer >= self.wait:
+                self.waiting = False
+                self.timingBar.bar.play = True
         else:
-            self.box.draw(drawSurface)
-
-            drawSurface.blit(self.step1, (36, 67))
-            drawSurface.blit(self.step2, (36, 167))
-
-            self.testSeq.draw(drawSurface)
-            self.testBar.draw(drawSurface)
-
-            drawSurface.blit(self.ok, (480, 250))
-            self.okHitBox = rectAdd((460, 250), self.ok.get_rect())
-            
+            self.sequence.draw(drawSurface)
+                
+        drawSurface.blit(self.pointDisplay, (0,0))
+        scoreType =  self.timingBar.scoreType
+        if scoreType != None:
+            scoreNotif = self.scoreNotifs[scoreType]
+            drawSurface.blit(scoreNotif, (RESOLUTION[0]/2-(scoreNotif.get_width()//2), RESOLUTION[1]-70))
 
     def handleEvent(self, event):
-        if self.start:
-            self.sequence.handleEvent(event)
-            self.timingBar.handleEvent(event)
-            if self.sequence.complete:
-                if self.timingBar.complete: # if sequence is completed and space bar is hit
-                    self.timingBar.complete = False
-                    self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
-                                  NUMARROWS)
-                    # increase and display points
-                    self.points += self.timingBar.score 
-                    self.pointDisplay = self.font1.render("Score count: " + str(self.points),
-                                                        False,
-                                                        (255,255,255)) 
-                    self.counting = True         
-            else:
-                if self.timingBar.complete:
-                    self.timingBar.complete = False
-
-                    # penalty for pressing space bar w/o completing sequence
-                    self.points -= 100
-                    self.timingBar.scoreType = "miss"
-                    self.pointDisplay = self.font1.render("Score count: " + str(self.points),
+        self.sequence.handleEvent(event)
+        self.timingBar.handleEvent(event)
+        if self.sequence.complete:
+            if self.timingBar.complete: # if sequence is completed and space bar is hit
+                self.timingBar.complete = False
+                self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),NUMARROWS)
+                # increase and display points
+                self.points += self.timingBar.score 
+                self.pointDisplay = self.font1.render("Score count: " + str(self.points),
+                                                    False,
+                                                    (255,255,255)) 
+                self.counting = True         
+        else:
+            if self.timingBar.complete:
+                self.timingBar.complete = False
+                
+                # penalty for pressing space bar w/o completing sequence
+                self.points -= 100
+                self.timingBar.scoreType = "miss"
+                self.pointDisplay = self.font1.render("Score count: " + str(self.points),
                                                     False,
                                                     (255,255,255))
-        else:
-            if self.okHitBox.collidepoint(vec(*pygame.mouse.get_pos())//SCALE):
-                self.ok = self.font2.render("Let's play!", False, (0, 0, 0))
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.start = True
-                    self.count = time()
-                    self.waiting = True
-            else:
-                self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
-    
+                
     def update(self, seconds):
-        if self.start:
-            if not self.paused:
-                self.timingBar.update(seconds)
-        else:
-            self.testBar.update(seconds)
-        #self.sequence.update(seconds)
-        #Drawable.updateOffset(self.sequence, self.size)
+        if self.waiting:
+            self.timer += seconds
+        if not self.paused:
+            self.timingBar.update(seconds)
 
 
 

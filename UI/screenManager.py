@@ -1,13 +1,14 @@
 from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
-from gameObjects.engine import GameEngine, TutorialEngine
+from gameObjects.engine import GameEngine, TutorialEngine, TutGameEngine
 from pygame.locals import *
 
 class ScreenManager(object):
     def __init__(self):
         self.game = GameEngine()
         self.tutorial = TutorialEngine()
+        self.tutGame = TutGameEngine()
         self.state = ScreenManagerFSM(self)
 
         # startMenu portion
@@ -30,6 +31,9 @@ class ScreenManager(object):
 
         elif self.state.isInTutorial() :
             self.tutorial.draw(drawSurface)
+
+        elif self.state.isInTutGame():
+            self.tutGame.draw(drawSurface)
             
         elif self.state == "startMenu":
             self.startMenu.draw(drawSurface)
@@ -44,21 +48,29 @@ class ScreenManager(object):
 
         elif self.state in ["tutorial"]:
             if event.type == KEYDOWN and event.key == K_m:
-                sm = SoundManager.getInstance()
-                sm.fadeoutBGM(0)
                 self.state.quitTutorial()
             elif event.type == KEYDOWN and event.key == K_p:
-                sm = SoundManager.getInstance()
                 if self.tutorial.paused:
                     self.tutorial.paused = False
-                    sm.playBGM("60 BPM.mp3")
                 else:
                     self.tutorial.paused = True
-                    sm.fadeoutBGM(0)
+            elif self.tutorial.complete:
+                self.state.startTutGame()
             else:
                 if not self.tutorial.paused:
                     self.tutorial.handleEvent(event)
-
+                    
+        elif self.state in ["tutGame"]:
+            if event.type == KEYDOWN and event.key == K_m:
+                self.state.quitTutGame()
+            elif event.type == KEYDOWN and event.key == K_p:
+                if self.tutGame.paused:
+                    self.tutGame.paused = False
+                else:
+                    self.tutGame.paused = True
+            else:
+                if not self.tutGame.paused:
+                    self.tutGame.handleEvent(event)
 
         elif self.state == "startMenu":
             choice = self.startMenu.handleEvent(event)
@@ -73,3 +85,5 @@ class ScreenManager(object):
             self.startMenu.update(seconds)
         elif self.state == "tutorial":
             self.tutorial.update(seconds)
+        elif self.state == "tutGame":
+            self.tutGame.update(seconds)

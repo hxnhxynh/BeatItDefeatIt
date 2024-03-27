@@ -2,12 +2,14 @@ from utils import SoundManager
 from . import Drawable
 
 class Interpolated(Drawable):
-    def __init__(self, start, stop, seconds, fileName=""):
+    def __init__(self, start, stop, bpm=60, fileName=""):
         super().__init__(start, fileName, (0,0))
         self.fileName = fileName
         self.start = start[0]
         self.stop = stop[0]
-        self.seconds = seconds
+        self.bpm = bpm
+        self.seconds = 4/(bpm/60)
+        self.beat = self.seconds/4
         self.diff = self.stop-self.start
         self.timer = 0
         self.secTimer = 0
@@ -16,8 +18,8 @@ class Interpolated(Drawable):
     def update(self, seconds):
         self.timer += seconds
         self.secTimer += seconds
-        if self.play and self.secTimer > 1:
-            self.secTimer -= 1
+        if self.play and self.secTimer > self.beat:
+            self.secTimer -= self.beat
             sm = SoundManager.getInstance()
             sm.playSFX("click.wav")
         if self.timer > self.seconds:

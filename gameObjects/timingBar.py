@@ -22,7 +22,7 @@ class TimingBar(object):
 
         # set up hitbox boundaries
         self.stop = position + (154,0)
-        self.bar = Interpolated(self.position, self.stop, 4, "timingBar.png")
+        self.bar = Interpolated(self.position, self.stop, self.tempo, "timingBar.png")
         # need to move bar to 125 pixels to hit center of CD
         # every fourth beat of 60 bpm = 4 seconds , should move 38.5 pixels per second
         # 154 pixels = reset
