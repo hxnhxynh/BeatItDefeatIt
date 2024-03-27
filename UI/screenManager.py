@@ -1,22 +1,24 @@
 from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
-from gameObjects.engine import GameEngine, TutorialEngine
+from gameObjects.engine import GameEngine, TutorialEngine, TutGameEngine, IntroEngine
 from pygame.locals import *
 
 class ScreenManager(object):
     def __init__(self):
         self.game = GameEngine()
+        self.intro = IntroEngine()
         self.tutorial = TutorialEngine()
+        self.tutGame = TutGameEngine()
         self.state = ScreenManagerFSM(self)
 
         # startMenu portion
         self.startMenu = MouseMenu("background.png", hoverColor = (32, 214, 199))
-        self.startMenu.addOption(key="start", 
+        self.startMenu.addOption(key="intro", 
                                  text="Game Mode", 
                                  position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-70)),
                                  center="both", 
-                                 unlocked=False)
+                                 unlocked=True)
         self.startMenu.addOption(key="tutorial", 
                                  text="Tutorial", 
                                  position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-50)),
@@ -30,6 +32,12 @@ class ScreenManager(object):
 
         elif self.state.isInTutorial() :
             self.tutorial.draw(drawSurface)
+
+        elif self.state.isInTutGame():
+            self.tutGame.draw(drawSurface)
+        
+        elif self.state.isInIntro():
+            self.intro.draw(drawSurface)
             
         elif self.state == "startMenu":
             self.startMenu.draw(drawSurface)
@@ -42,34 +50,57 @@ class ScreenManager(object):
             else:
                 self.game.handleEvent(event)
 
+        elif self.state in ["intro"]:
+            if event.type == KEYDOWN and event.key == K_m:
+                self.state.quitIntro()
+            elif self.intro.back:
+                self.state.quitIntro()
+            else:
+                self.intro.handleEvent(event)
+
         elif self.state in ["tutorial"]:
             if event.type == KEYDOWN and event.key == K_m:
-                sm = SoundManager.getInstance()
-                sm.fadeoutBGM(0)
                 self.state.quitTutorial()
             elif event.type == KEYDOWN and event.key == K_p:
-                sm = SoundManager.getInstance()
                 if self.tutorial.paused:
                     self.tutorial.paused = False
-                    sm.playBGM("60 BPM.mp3")
                 else:
                     self.tutorial.paused = True
-                    sm.fadeoutBGM(0)
+            elif self.tutorial.complete:
+                self.state.startTutGame()
             else:
                 if not self.tutorial.paused:
                     self.tutorial.handleEvent(event)
-
+                    
+        elif self.state in ["tutGame"]:
+            if event.type == KEYDOWN and event.key == K_m:
+                self.state.quitTutGame()
+            elif event.type == KEYDOWN and event.key == K_p:
+                if self.tutGame.paused:
+                    self.tutGame.paused = False
+                else:
+                    self.tutGame.paused = True
+            else:
+                if not self.tutGame.paused:
+                    self.tutGame.handleEvent(event)
 
         elif self.state == "startMenu":
             choice = self.startMenu.handleEvent(event)
 
             if choice == "tutorial":
                 self.state.startTutorial()
+
+            if choice == "intro":
+                self.state.startIntro()
     
     def update(self, seconds):
         if self.state == "game":
             self.game.update(seconds)
+        elif self.state == "intro":
+            self.intro.update(seconds)
         elif self.state == "startMenu":
             self.startMenu.update(seconds)
         elif self.state == "tutorial":
             self.tutorial.update(seconds)
+        elif self.state == "tutGame":
+            self.tutGame.update(seconds)
