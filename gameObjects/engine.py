@@ -6,77 +6,92 @@ from time import time
 NUMARROWS = 5
 SEQUENCE_SIZE = vec(32*NUMARROWS, 32)
 
+class IntroEngine(object):
+    import pygame
+
+    def __init__(self):       
+        self.size = vec(*RESOLUTION)
+        self.back = False
+
+        self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
+        self.font2 = pygame.font.SysFont("Arial Black", 15)
+
+        self.slides = ["Intro1.png", "Intro2.png", "Intro3.png", "Intro4.png", "Intro5.png"]
+        self.slideNum = 0
+        self.background = Drawable((0,0), "Intro1.png")
+        self.position = vec(0,0)
+        self.slide = False
+
+        self.transition = pygame.Surface(list(map(int, RESOLUTION))) 
+        self.alpha = 255
+        self.transition.set_alpha(255)                
+        self.transition.fill((0,0,0))    
+
+        self.next = self.font2.render("Next", False, (255, 255, 255))     
+        
+    
+    def draw(self, drawSurface): 
+        if self.background.getSize()[0] == RESOLUTION[0]:
+            self.slide = False
+        else:
+            self.slide = True
+
+        self.background.draw(drawSurface)
+
+        drawSurface.blit(self.next, (530, 270))
+        self.nextHitBox = rectAdd((530, 270), self.next.get_rect())
+        drawSurface.blit(self.transition, (0,0))
+        
+
+    def handleEvent(self, event):
+        if self.nextHitBox.collidepoint(vec(*pygame.mouse.get_pos())//SCALE):
+            self.next = self.font2.render("Next", False, (0, 0, 0))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.slideNum += 1
+                if self.slideNum == len(self.slides)-1:
+                    self.slideNum = 0
+                
+                self.background = Drawable((0,0), self.slides[self.slideNum])  
+                self.alpha = 255    
+                self.position = vec(0,0)   
+        else:
+            self.next = self.font2.render("Next", False, (255, 255, 255))
+        
+    
+    def update(self, seconds):
+        self.alpha -= 1
+        if self.alpha < 0:
+            self.alpha = 0
+        self.transition.set_alpha(self.alpha) 
+
+        if self.slide:
+            self.position[0] -= 1
+            if self.position[0] <= -600:
+                self.background = Drawable((-600,0), self.slides[self.slideNum])
+            else:
+                self.background = Drawable((self.position[0],0), self.slides[self.slideNum])
+        else:
+            self.background = Drawable((0,0), self.slides[self.slideNum])
+
+
 class GameEngine(object):
     import pygame
 
     def __init__(self):       
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "dasKlubBackground.png")
-        self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
-                                  NUMARROWS)
-        self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)))
-        self.points = 0
-        self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
-        self.font2 = pygame.font.SysFont("Arial", 15)
-        self.pointDisplay = self.font1.render("Score count: 0",
-                                             False,
-                                             (255,255,255))
-        self.instructions = self.font1.render("Press the arrow keys in order to earn points!",
-                                             False,
-                                             (255,255,255))
-        self.scoreNotifs = {"bad" : self.font2.render("Bad! -100 points", 
-                                                     False, 
-                                                     (185, 191, 151)),
-                            "good": self.font2.render("Good job! +300 points",
-                                                     False,
-                                                     (32, 214, 99)),
-                            "great": self.font2.render("Great job! +500 points",
-                                                      False,
-                                                      (156, 219, 67)),
-                            "perf": self.font2.render("Perfect! +1000 points", 
-                                                     False,
-                                                     (188, 74, 155))
-                            }
+        
     
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
-        self.sequence.draw(drawSurface)
-        self.timingBar.draw(drawSurface)
-        drawSurface.blit(self.pointDisplay, (0,0))
-        drawSurface.blit(self.instructions, (RESOLUTION[0]/2-(self.instructions.get_width()//2), RESOLUTION[1]-50))
-        scoreNotif = self.scoreNotifs[self.timingBar.scoreType]
-        if scoreNotif != None:
-            drawSurface.blit(scoreNotif, (RESOLUTION[0]/2-(scoreNotif.get_width()//2), RESOLUTION[1]-70))
+        
 
     def handleEvent(self, event):
-        self.sequence.handleEvent(event)
-        self.timingBar.handleEvent(event)
-        if self.sequence.complete:
-            if self.timingBar.complete: # if sequence is completed and space bar is hit
-                self.timingBar.complete = False
-                self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
-                                      NUMARROWS) # reset sequence
-                
-                # increase and display points
-                self.points += self.timingBar.score 
-                self.pointDisplay = self.font1.render("Score count: " + str(self.points),
-                                                     False,
-                                                     (255,255,255))
-        else:
-            if self.timingBar.complete:
-                self.timingBar.complete = False
-
-                # penalty for pressing space bar w/o completing sequence
-                self.points -= 100
-                self.pointDisplay = self.font1.render("Score count: " + str(self.points),
-                                                False,
-                                                (255,255,255))
+        pass
         
     
     def update(self, seconds):
-        self.timingBar.update(seconds)
-        #self.sequence.update(seconds)
-        #Drawable.updateOffset(self.sequence, self.size)
+        pass
 
 class TutorialEngine(object):
     import pygame
@@ -135,12 +150,14 @@ class TutGameEngine(object):
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
         self.font2 = pygame.font.SysFont("Arial Black", 15)
 
-        self.waiting = True
+        self.waitingForBeats = True
+        self.waitingForMusic = False
         self.wait = 4
         self.timer = 0
+        self.musicTimer = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)
-        self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)))
+        self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)), 60)
         self.points = 0
         self.pointDisplay = self.font1.render("Score count: 0",
                                              False,
@@ -163,12 +180,13 @@ class TutGameEngine(object):
                                                       (245, 245, 245))
                             }
     
+    
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
         self.timingBar.draw(drawSurface)
-        if self.waiting:
+        if self.waitingForBeats:
             if self.timer >= self.wait:
-                self.waiting = False
+                self.waitingForBeats = False
                 self.timingBar.bar.play = True
         else:
             self.sequence.draw(drawSurface)
@@ -204,8 +222,15 @@ class TutGameEngine(object):
                                                     (255,255,255))
                 
     def update(self, seconds):
-        if self.waiting:
+        if self.waitingForMusic:
+            self.musicTimer += seconds
+            if self.musicTimer > 3:
+                self.waitingForMusic = False
+                sm = SoundManager.getInstance()
+                sm.playBGM("Disco 60 BPM.mp3")
+        if self.waitingForBeats:
             self.timer += seconds
+
         if not self.paused:
             self.timingBar.update(seconds)
 
