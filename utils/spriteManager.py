@@ -33,14 +33,14 @@ class SpriteManager(object):
       _IMAGE_FOLDER = "images"
       
       # Static information about the sprite sizes of particular image sheets.
-      _SPRITE_SIZES = {
+      _SPRITE_SIZES = {"playerSheet.png": (48,48)
       }
       
       # A default sprite size
       _DEFAULT_SPRITE = (32,32)
       
       # A list of images that require to be loaded with transparency
-      _TRANSPARENCY = []
+      _TRANSPARENCY = ["playerSheet.png"]
       
       # A list of images that require to be loaded with a color key
       _COLOR_KEY = ["arrowSheet.png","timingBack.png", "cd.png", "timingBar.png", "logo.png", "instructions.png"]

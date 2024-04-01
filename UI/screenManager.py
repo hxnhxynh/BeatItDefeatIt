@@ -55,6 +55,8 @@ class ScreenManager(object):
                 self.state.quitIntro()
             elif self.intro.back:
                 self.state.quitIntro()
+            elif self.intro.complete:
+                self.state.startGame()
             else:
                 self.intro.handleEvent(event)
 
