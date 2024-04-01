@@ -1,6 +1,6 @@
 import pygame
-from . import Drawable, Sequence, TimingBar
-from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager
+from . import Drawable, Sequence, TimingBar, Player
+from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager, WORLD_SIZE
 from time import time
 
 NUMARROWS = 5
@@ -12,6 +12,7 @@ class IntroEngine(object):
     def __init__(self):       
         self.size = vec(*RESOLUTION)
         self.back = False
+        self.complete = False
 
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
         self.font2 = pygame.font.SysFont("Arial Black", 15)
@@ -49,7 +50,7 @@ class IntroEngine(object):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.slideNum += 1
                 if self.slideNum == len(self.slides)-1:
-                    self.slideNum = 0
+                    self.complete = True
                 
                 self.background = Drawable((0,0), self.slides[self.slideNum])  
                 self.alpha = 255    
@@ -79,19 +80,22 @@ class GameEngine(object):
 
     def __init__(self):       
         self.size = vec(*RESOLUTION)
-        self.background = Drawable((0,0), "dasKlubBackground.png")
+        self.background = Drawable((0,0), "Intro2.png")
+        self.player = Player((0,252))
         
     
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
+        self.player.draw(drawSurface)
         
 
     def handleEvent(self, event):
-        pass
+        self.player.handleEvent(event)
         
     
     def update(self, seconds):
-        pass
+        self.player.update(seconds)
+        Drawable.updateOffset(self.player, WORLD_SIZE)
 
 class TutorialEngine(object):
     import pygame
