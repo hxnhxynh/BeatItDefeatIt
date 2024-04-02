@@ -1,5 +1,5 @@
 import pygame
-from . import Drawable, Sequence, TimingBar, Player
+from . import Drawable, Sequence, TimingBar, Player, NPC, Hitbox, Dialogue
 from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager, WORLD_SIZE
 from time import time
 
@@ -82,20 +82,57 @@ class GameEngine(object):
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "Intro2.png")
         self.player = Player((0,252))
+        self.NPC = NPC((200, 252))
+
+        self.readyToTalk = False
+        self.talking = False
+        self.dialogue = Dialogue("Hey buddy...\nTry to avoid the tables near the\nstage. He's in a mood.", 
+                                 color = (76, 65, 100))
+
+        self.hitboxes = [Hitbox(self.player.position, 47, 47), 
+                         Hitbox(self.NPC.position, 47, 47)]
+        self.hitPos = [self.player.position, 
+                       self.NPC.position]
+
         
     
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
+        self.NPC.draw(drawSurface)
         self.player.draw(drawSurface)
         
+        for hitbox in self.hitboxes:
+            hitbox.draw(drawSurface)
+
+        if self.talking:
+            self.dialogue.draw(drawSurface)
+
 
     def handleEvent(self, event):
         self.player.handleEvent(event)
+
+        playerRect = self.hitboxes[0].getRect()
+        npcRect = self.hitboxes[1].getRect()
+
+        if playerRect.colliderect(npcRect):
+            self.readyToTalk = True
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                self.talking = True
+
+        else:
+            self.readyToTalk = False
+            self.talking = False
         
     
     def update(self, seconds):
         self.player.update(seconds)
+        self.NPC.update(seconds)
         Drawable.updateOffset(self.player, WORLD_SIZE)
+
+        for i in range(len(self.hitboxes)):
+            self.hitboxes[i].update(self.hitPos[i])
+        
 
 class TutorialEngine(object):
     import pygame
