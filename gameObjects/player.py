@@ -1,6 +1,6 @@
 from . import Mobile
 from FSMs import WalkingFSM, AccelerationFSM
-
+from utils import rectAdd
 from pygame.locals import *
 import pygame
 import numpy as np
@@ -30,6 +30,7 @@ class Player(Mobile):
 
         self.FSManimated = WalkingFSM(self)
         self.LR = AccelerationFSM(self, axis=0)
+        self.hitbox = (self.position[0], self.position[1], 47, 47)
 
     def handleEvent(self, event):
       if event.type == KEYDOWN:
