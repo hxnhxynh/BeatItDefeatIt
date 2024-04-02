@@ -15,14 +15,19 @@ class Dialogue(Drawable):
     FONTS = {"default" : pygame.font.Font(os.path.join(FONT_FOLDER, DEFAULT_FONT), DEFAULT_SIZE)
              }
     
-    def __init__(self, text, font="default", color=(255,255,255)):
+    def __init__(self, text, font="default", color=(255,255,255), begin="NPC", end="Player"):
         self.position = vec(40, 210)
         self.text = text
         self.sentences = self.text.split('\n') 
         self.font = font
         self.color = color
-        self.box = Drawable((0,0), "dialogueBox.png")
+        if begin != "NPC": 
+            self.box = Drawable((0,0), "dialogueBox.png", (0,0))
+        else:
+            self.box = Drawable((0,0), "dialogueBox.png", (1,0))
         self.limit = (560,270)
+        self.next = None
+        
 
         if len(self.sentences) == 1:
             super().__init__((40, 210), "")
@@ -49,11 +54,16 @@ class Dialogue(Drawable):
             text = Drawable(position, "")
             text.image = Dialogue.FONTS[self.font].render(sentences[i], False, self.color)
             rendered.append(text)
-            position = position + vec(0, 15)
+            position = position + vec(0, 16)
         
         return rendered
     
-
+    def add(self, text, begin="NPC", end="Player"):
+        self.next = Dialogue(text, font = self.font, color = self.color)
+    
+    def handleEvent(self, event):
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            return True
 
 
 
