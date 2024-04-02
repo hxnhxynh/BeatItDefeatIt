@@ -86,8 +86,13 @@ class GameEngine(object):
 
         self.readyToTalk = False
         self.talking = False
-        self.dialogue = Dialogue("Hey buddy...\nTry to avoid the tables near the\nstage. He's in a mood.", 
-                                 color = (76, 65, 100))
+        self.dialogues = [Dialogue("Hey buddy...\nTry to avoid the tables near the\nstage. He's in a mood.", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("Why Mr. Smooth always gotta be such\na Mr. Snappy?", 
+                                 color = (76, 65, 100))]
+        self.dialogue = self.dialogues[0]
+        self.currentTalk = 0
+        self.bubble = Drawable((204, 220), "bubbles.png", (0,0))
 
         self.hitboxes = [Hitbox(self.player.position, 47, 47), 
                          Hitbox(self.NPC.position, 47, 47)]
@@ -104,12 +109,16 @@ class GameEngine(object):
         for hitbox in self.hitboxes:
             hitbox.draw(drawSurface)
 
+        if self.readyToTalk:
+            self.bubble.draw(drawSurface)
+
         if self.talking:
             self.dialogue.draw(drawSurface)
 
 
+
     def handleEvent(self, event):
-        self.player.handleEvent(event)
+
 
         playerRect = self.hitboxes[0].getRect()
         npcRect = self.hitboxes[1].getRect()
@@ -119,10 +128,22 @@ class GameEngine(object):
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 self.talking = True
-
         else:
             self.readyToTalk = False
             self.talking = False
+        
+        if self.talking:
+            result = self.dialogue.handleEvent(event)
+            if result:
+                self.currentTalk += 1
+                if self.currentTalk >= len(self.dialogues):
+                    self.talking = False
+                    self.currentTalk = 0
+                    self.dialogue = self.dialogues[0]
+                else:
+                    self.dialogue = self.dialogues[self.currentTalk]
+        else:
+            self.player.handleEvent(event)
         
     
     def update(self, seconds):
