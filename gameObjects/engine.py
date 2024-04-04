@@ -80,9 +80,9 @@ class GameEngine(object):
 
     def __init__(self):       
         self.size = vec(*RESOLUTION)
-        self.background = Drawable((0,0), "Intro2.png")
-        self.player = Player((0,252))
-        self.NPC = NPC((200, 252))
+        self.background = Drawable((0,0), "lizardLounge.png")
+        self.player = Player((0,246))
+        self.NPC = NPC((200, 246))
 
         self.readyToTalk = False
         self.talking = False
@@ -92,10 +92,10 @@ class GameEngine(object):
                                  color = (76, 65, 100))]
         self.dialogue = self.dialogues[0]
         self.currentTalk = 0
-        self.bubble = Drawable((204, 220), "bubbles.png", (0,0))
+        self.bubble = Drawable((204, 215), "bubbles.png", (0,0))
 
-        self.hitboxes = [Hitbox(self.player.position, 47, 47), 
-                         Hitbox(self.NPC.position, 47, 47)]
+        self.hitboxes = [Hitbox(self.player.position-vec(13, 13), 60, 60), 
+                         Hitbox(self.NPC.position-vec(13, 13), 60, 60)]
         self.hitPos = [self.player.position, 
                        self.NPC.position]
 
