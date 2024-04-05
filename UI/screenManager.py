@@ -2,6 +2,7 @@ from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
 from gameObjects.engine import LizLoungeEngine, LizStageEngine, TutorialEngine, TutGameEngine, IntroEngine
+from gameObjects.drawable import Drawable
 from pygame.locals import *
 
 class ScreenManager(object):
@@ -13,6 +14,7 @@ class ScreenManager(object):
         self.tutorial = TutorialEngine()
         self.tutGame = TutGameEngine()
         self.state = ScreenManagerFSM(self)
+
 
         # startMenu portion
         self.startMenu = MouseMenu("background.png", hoverColor = (32, 214, 199))
