@@ -75,14 +75,18 @@ class IntroEngine(object):
             self.background = Drawable((0,0), self.slides[self.slideNum])
 
 
-class GameEngine(object):
+class LizLoungeEngine(object):
     import pygame
 
     def __init__(self):       
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "lizardLounge.png")
+        self.stage = Drawable((0,0), "background.png")
         self.player = Player((0,246))
         self.NPC = NPC((200, 246))
+        self.area = "lizLounge"
+        self.transition = True
+        self.goTo = None
 
         self.readyToTalk = False
         self.talking = False
@@ -94,20 +98,24 @@ class GameEngine(object):
         self.currentTalk = 0
         self.bubble = Drawable((204, 215), "bubbles.png", (0,0))
 
-        self.hitboxes = [Hitbox(self.player.position-vec(13, 13), 60, 60), 
-                         Hitbox(self.NPC.position-vec(13, 13), 60, 60)]
+        self.hitboxes = [Hitbox(self.player.position, 48, 48), 
+                         Hitbox(self.NPC.position, 48, 48),]
         self.hitPos = [self.player.position, 
                        self.NPC.position]
+        self.stageBox = Hitbox((900, 200), 100,100)
 
-        
+        self.canGoUp = False
     
-    def draw(self, drawSurface):        
+        
+    def draw(self, drawSurface):     
         self.background.draw(drawSurface)
         self.NPC.draw(drawSurface)
         self.player.draw(drawSurface)
         
-        for hitbox in self.hitboxes:
-            hitbox.draw(drawSurface)
+        #for hitbox in self.hitboxes:
+        #    hitbox.draw(drawSurface)
+
+        self.stageBox.draw(drawSurface)
 
         if self.readyToTalk:
             self.bubble.draw(drawSurface)
@@ -122,6 +130,7 @@ class GameEngine(object):
 
         playerRect = self.hitboxes[0].getRect()
         npcRect = self.hitboxes[1].getRect()
+        stageRect = self.stageBox.getRect()
 
         if playerRect.colliderect(npcRect):
             self.readyToTalk = True
@@ -131,6 +140,15 @@ class GameEngine(object):
         else:
             self.readyToTalk = False
             self.talking = False
+
+        if playerRect.colliderect(stageRect):
+            self.canGoUp = True
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                self.transition = True
+                self.goTo = "lizStage"
+        else:
+            self.canGoUp = False
         
         if self.talking:
             result = self.dialogue.handleEvent(event)
@@ -153,7 +171,27 @@ class GameEngine(object):
 
         for i in range(len(self.hitboxes)):
             self.hitboxes[i].update(self.hitPos[i])
+
+        self.stageBox.update(self.stageBox.position)
         
+class LizStageEngine(object):
+    import pygame
+
+    def __init__(self):
+        self.size = vec(*RESOLUTION)
+        self.background = Drawable((0,0), "background.png")
+        self.area = "lizStage"
+        self.transition = False
+        self.goTo = None
+
+    def draw(self, drawSurface):
+        self.background.draw(drawSurface)
+
+    def handleEvent(self, event):
+        pass
+
+    def update(self, seconds):
+        pass
 
 class TutorialEngine(object):
     import pygame

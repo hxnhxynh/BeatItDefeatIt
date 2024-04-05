@@ -1,12 +1,14 @@
 from FSMs import ScreenManagerFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
-from gameObjects.engine import GameEngine, TutorialEngine, TutGameEngine, IntroEngine
+from gameObjects.engine import LizLoungeEngine, LizStageEngine, TutorialEngine, TutGameEngine, IntroEngine
 from pygame.locals import *
 
 class ScreenManager(object):
     def __init__(self):
-        self.game = GameEngine()
+        self.game = LizLoungeEngine()
+        self.lizLounge = self.game
+        self.lizStage = LizStageEngine()
         self.intro = IntroEngine()
         self.tutorial = TutorialEngine()
         self.tutGame = TutGameEngine()
@@ -47,8 +49,20 @@ class ScreenManager(object):
         if self.state in ["game"]:
             if event.type == KEYDOWN and event.key == K_m:
                 self.state.quitGame()
-            else:
-                self.game.handleEvent(event)
+
+            elif self.game.transition:
+                if self.game.area == "lizLounge":
+                    if self.game.goTo == "lizStage":
+                        self.game.goTo = None
+                        self.game.transition = False
+                        self.game = self.lizStage
+                if self.game.area == "lizStage":
+                    if self.game.goTo == "lizLounge":
+                        self.game.goTo = None
+                        self.game.transition = False
+                        self.game = self.lizLounge
+            
+            self.game.handleEvent(event)
 
         elif self.state in ["intro"]:
             if event.type == KEYDOWN and event.key == K_m:
