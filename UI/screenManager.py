@@ -1,11 +1,13 @@
-from FSMs import ScreenManagerFSM
+from FSMs import ScreenManagerFSM, MovementFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
 from gameObjects.engine import LizLoungeEngine, LizStageEngine, TutorialEngine, TutGameEngine, IntroEngine
 from gameObjects.drawable import Drawable
 from pygame.locals import *
+import pygame
 
 class ScreenManager(object):
+    import pygame
     def __init__(self):
         self.game = LizLoungeEngine()
         self.lizLounge = self.game
@@ -15,6 +17,12 @@ class ScreenManager(object):
         self.tutGame = TutGameEngine()
         self.state = ScreenManagerFSM(self)
 
+        # transitions in between game locations
+        self.fading = False
+        self.fade =  pygame.Surface(list(map(int, RESOLUTION))) 
+        self.alpha = 255
+        self.fade.set_alpha(255)                
+        self.fade.fill((0,0,0))
 
         # startMenu portion
         self.startMenu = MouseMenu("background.png", hoverColor = (32, 214, 199))
@@ -32,7 +40,12 @@ class ScreenManager(object):
 
     def draw(self, drawSurface):
         if self.state.isInGame():
-            self.game.draw(drawSurface)
+            if self.game.transition:
+                self.fading = True
+            else: 
+                self.game.draw(drawSurface)
+                if self.fading:
+                    drawSurface.blit(self.fade, (0,0))
 
         elif self.state.isInTutorial() :
             self.tutorial.draw(drawSurface)
@@ -51,6 +64,7 @@ class ScreenManager(object):
         if self.state in ["game"]:
             if event.type == KEYDOWN and event.key == K_m:
                 self.state.quitGame()
+                Drawable.CAMERA_OFFSET = vec(0,0)
 
             elif self.game.transition:
                 if self.game.area == "lizLounge":
@@ -58,11 +72,18 @@ class ScreenManager(object):
                         self.game.goTo = None
                         self.game.transition = False
                         self.game = self.lizStage
+                        Drawable.CAMERA_OFFSET = vec(0,0)
+                        MovementFSM.WORLD_SIZE = vec(600,300)
+                        self.fading = True
+                        
                 if self.game.area == "lizStage":
                     if self.game.goTo == "lizLounge":
                         self.game.goTo = None
                         self.game.transition = False
                         self.game = self.lizLounge
+                        MovementFSM.WORLD_SIZE = vec(1000,300)
+                        self.fading = True
+                        
             
             self.game.handleEvent(event)
 
@@ -114,6 +135,12 @@ class ScreenManager(object):
     def update(self, seconds):
         if self.state == "game":
             self.game.update(seconds)
+            if self.fading:
+                self.alpha -= 2
+                if self.alpha < 0:
+                    self.fading = False
+                    self.alpha = 255
+                self.fade.set_alpha(self.alpha)
         elif self.state == "intro":
             self.intro.update(seconds)
         elif self.state == "startMenu":

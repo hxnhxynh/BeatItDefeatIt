@@ -79,13 +79,13 @@ class LizLoungeEngine(object):
     import pygame
 
     def __init__(self):       
-        self.size = vec(*RESOLUTION)
+        self.size = vec(*WORLD_SIZE)
         self.background = Drawable((0,0), "lizardLounge.png")
         self.stage = Drawable((0,0), "background.png")
         self.player = Player((0,246))
         self.NPC = NPC((200, 246))
         self.area = "lizLounge"
-        self.transition = True
+        self.transition = False
         self.goTo = None
 
         self.readyToTalk = False
@@ -126,8 +126,6 @@ class LizLoungeEngine(object):
 
 
     def handleEvent(self, event):
-
-
         playerRect = self.hitboxes[0].getRect()
         npcRect = self.hitboxes[1].getRect()
         stageRect = self.stageBox.getRect()
@@ -167,7 +165,7 @@ class LizLoungeEngine(object):
     def update(self, seconds):
         self.player.update(seconds)
         self.NPC.update(seconds)
-        Drawable.updateOffset(self.player, WORLD_SIZE)
+        Drawable.updateOffset(self.player, self.size)
 
         for i in range(len(self.hitboxes)):
             self.hitboxes[i].update(self.hitPos[i])
@@ -179,19 +177,121 @@ class LizStageEngine(object):
 
     def __init__(self):
         self.size = vec(*RESOLUTION)
+        self.player = Player((500,246))
+        self.Mr = NPC((100, 246))
         self.background = Drawable((0,0), "background.png")
         self.area = "lizStage"
         self.transition = False
         self.goTo = None
 
+        self.readyToTalk = False
+        self.talking = False
+        self.dialogues = [Dialogue("What are you looking at, idiot?", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("Your buddy down there has been\nslacking all week!", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...?", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("What? He says he's been cleaning \nthe shot glasses twice a night with\ndegreaser and steel wool?", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("YOU THINK YOU KNOW BETTER THAN ME?!", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("What? You think you’re Mr. Funny?\nMr. Cool Guy? Mr. Smooth even?!", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("WELL YOU'RE NOT! DON'T PISS ME OFF!", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("...", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("!!!", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("YOU WANT TO CHALLENGE ME TO A\nRHYTHM BATTLE? ARE YOU NUTS?!", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("!!!", begin="p", end="L",
+                                 color = (76, 65, 100)),
+                                 Dialogue("Oh, you're serious.", 
+                                 color = (76, 65, 100)),
+                                 Dialogue("OK. Prepare to DIE!!!!", 
+                                 color = (76, 65, 100)),
+                                 ]
+        self.dialogue = self.dialogues[0]
+        self.currentTalk = 0
+        self.bubble = Drawable((104, 215), "bubbles.png", (0,0))
+
+        self.hitboxes = [Hitbox(self.player.position, 48, 48), 
+                         Hitbox(self.Mr.position, 48, 48),]
+        self.hitPos = [self.player.position, 
+                       self.Mr.position]
+        self.stageBox = Hitbox((500, 200), 100,100)
+
+        self.canGoDown = False
+
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
+        self.player.draw(drawSurface)
+        self.Mr.draw(drawSurface)
+        self.stageBox.draw(drawSurface)
+
+        if self.readyToTalk:
+            self.bubble.draw(drawSurface)
+
+        if self.talking:
+            self.dialogue.draw(drawSurface)
 
     def handleEvent(self, event):
-        pass
+        playerRect = self.hitboxes[0].getRect()
+        mrRect = self.hitboxes[1].getRect()
+        stageRect = self.stageBox.getRect()
+
+        if playerRect.colliderect(mrRect):
+            self.readyToTalk = True
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                self.talking = True
+        else:
+            self.readyToTalk = False
+            self.talking = False
+
+        if playerRect.colliderect(stageRect):
+            self.canGoDown = True
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                self.transition = True
+                self.goTo = "lizLounge"
+        else:
+            self.canGoDown = False
+        
+        if self.talking:
+            result = self.dialogue.handleEvent(event)
+            if result:
+                self.currentTalk += 1
+                if self.currentTalk >= len(self.dialogues):
+                    self.talking = False
+                    self.currentTalk = 0
+                    self.dialogue = self.dialogues[0]
+                else:
+                    self.dialogue = self.dialogues[self.currentTalk]
+        else:
+            self.player.handleEvent(event)
 
     def update(self, seconds):
-        pass
+        self.player.update(seconds)
+        self.Mr.update(seconds)
+        Drawable.updateOffset(self.player, self.size)
+        
+        for i in range(len(self.hitboxes)):
+            self.hitboxes[i].update(self.hitPos[i])
 
 class TutorialEngine(object):
     import pygame
