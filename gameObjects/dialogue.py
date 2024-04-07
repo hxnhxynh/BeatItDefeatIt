@@ -59,7 +59,7 @@ class Dialogue(Drawable):
         return rendered
     
     def add(self, text, begin="NPC", end="Player"):
-        self.next = Dialogue(text, font = self.font, color = self.color)
+        self.next = Dialogue(text, font = self.font, color = self.color, begin=begin, end=end)
     
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
