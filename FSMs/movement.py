@@ -1,18 +1,17 @@
 from . import AbstractGameFSM
-from utils import vec, magnitude, WORLD_SIZE
+from utils import vec, magnitude
 
 from statemachine import State
 
 class MovementFSM(AbstractGameFSM):
-    
+    WORLD_SIZE = vec(1000,300)
     def update(self, seconds):
         
         for dim in range(2):
             if self.obj.position[dim] < 0:
                 self.obj.velocity[dim] = max(self.obj.velocity[dim], 0)
-            elif self.obj.position[dim] + self.obj.getSize()[dim] >= WORLD_SIZE[0]:
+            elif self.obj.position[dim] + self.obj.getSize()[dim] >= self.WORLD_SIZE[0]:
                 self.obj.velocity[dim] = min(self.obj.velocity[dim], 0)
-        
         
 
 
