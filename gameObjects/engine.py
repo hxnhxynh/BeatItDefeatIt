@@ -1,5 +1,5 @@
 import pygame
-from . import Drawable, Sequence, TimingBar, Player, NPC, Hitbox, Dialogue
+from . import Drawable, Sequence, TimingBar, Player, NPC, Hitbox, Dialogue, Animated
 from utils import vec, RESOLUTION, rectAdd, SCALE, SoundManager, WORLD_SIZE
 from time import time
 
@@ -98,11 +98,12 @@ class LizLoungeEngine(object):
         self.currentTalk = 0
         self.bubble = Drawable((204, 215), "bubbles.png", (0,0))
 
-        self.hitboxes = [Hitbox(self.player.position, 48, 48), 
-                         Hitbox(self.NPC.position, 48, 48),]
-        self.hitPos = [self.player.position, 
-                       self.NPC.position]
+        self.hitboxes = [Hitbox(self.NPC.position-(26, 0), 100, 48),]
+        self.playerHit = Hitbox(self.player.position, 48, 48)
+        
+        self.hitPos = [self.NPC.position-(26, 0)]
         self.stageBox = Hitbox((900, 200), 100,100)
+        self.upBubble = Drawable((900, 200), "upDown.png", (0,0))
 
         self.canGoUp = False
     
@@ -114,20 +115,26 @@ class LizLoungeEngine(object):
         
         #for hitbox in self.hitboxes:
         #    hitbox.draw(drawSurface)
+        
+        #self.playerHit.draw(drawSurface)
 
-        self.stageBox.draw(drawSurface)
+        #self.stageBox.draw(drawSurface)
 
         if self.readyToTalk:
             self.bubble.draw(drawSurface)
+
+        if self.canGoUp:
+            self.upBubble.draw(drawSurface)
 
         if self.talking:
             self.dialogue.draw(drawSurface)
 
 
 
+
     def handleEvent(self, event):
-        playerRect = self.hitboxes[0].getRect()
-        npcRect = self.hitboxes[1].getRect()
+        playerRect = self.playerHit.getRect()
+        npcRect = self.hitboxes[0].getRect()
         stageRect = self.stageBox.getRect()
 
         if playerRect.colliderect(npcRect):
@@ -166,10 +173,10 @@ class LizLoungeEngine(object):
         self.player.update(seconds)
         self.NPC.update(seconds)
         Drawable.updateOffset(self.player, self.size)
-
         for i in range(len(self.hitboxes)):
             self.hitboxes[i].update(self.hitPos[i])
 
+        self.playerHit.update(self.player.position)
         self.stageBox.update(self.stageBox.position)
         
 class LizStageEngine(object):
@@ -177,9 +184,12 @@ class LizStageEngine(object):
 
     def __init__(self):
         self.size = vec(*RESOLUTION)
-        self.player = Player((500,246))
-        self.Mr = NPC((100, 246))
-        self.background = Drawable((0,0), "background.png")
+        self.player = Player((530,190))
+        self.Mr = Animated((100, 144),"mrSmooth.png")
+        self.Mr.nFrames = 4
+        self.Mr.framesPerSecond = 4
+        self.background = Drawable((0,0), "lizardLoungeStage.png")
+        self.lights = Drawable((0,0), "lizardLoungeStageLights.png")
         self.area = "lizStage"
         self.transition = False
         self.goTo = None
@@ -227,31 +237,40 @@ class LizStageEngine(object):
                                  ]
         self.dialogue = self.dialogues[0]
         self.currentTalk = 0
-        self.bubble = Drawable((104, 215), "bubbles.png", (0,0))
+        self.bubble = Drawable(self.Mr.position - (-35, 35), "bubbles.png", (0,0))
 
-        self.hitboxes = [Hitbox(self.player.position, 48, 48), 
-                         Hitbox(self.Mr.position, 48, 48),]
-        self.hitPos = [self.player.position, 
-                       self.Mr.position]
-        self.stageBox = Hitbox((500, 200), 100,100)
+        self.hitboxes = [Hitbox(self.Mr.position, 130, 100),]
+        self.hitPos = [self.Mr.position]
+        self.playerHit = Hitbox(self.player.position, 48, 48)
 
+        self.stageBox = Hitbox((500, 142), 100,100)
+        self.downBubble = Drawable((500, 142), "upDown.png", (1,0))
         self.canGoDown = False
 
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
-        self.player.draw(drawSurface)
         self.Mr.draw(drawSurface)
-        self.stageBox.draw(drawSurface)
+        #self.stageBox.draw(drawSurface)
+        self.player.draw(drawSurface)
+
+        #self.hitboxes[0].draw(drawSurface)
+        #self.playerHit.draw(drawSurface)
 
         if self.readyToTalk:
             self.bubble.draw(drawSurface)
 
+        if self.canGoDown:
+            self.downBubble.draw(drawSurface)
+        
+        self.lights.draw(drawSurface)
+
         if self.talking:
             self.dialogue.draw(drawSurface)
 
+
     def handleEvent(self, event):
-        playerRect = self.hitboxes[0].getRect()
-        mrRect = self.hitboxes[1].getRect()
+        playerRect = self.playerHit.getRect()
+        mrRect = self.hitboxes[0].getRect()
         stageRect = self.stageBox.getRect()
 
         if playerRect.colliderect(mrRect):
@@ -292,6 +311,9 @@ class LizStageEngine(object):
         
         for i in range(len(self.hitboxes)):
             self.hitboxes[i].update(self.hitPos[i])
+
+        self.playerHit.update(self.player.position)
+        
 
 class TutorialEngine(object):
     import pygame
