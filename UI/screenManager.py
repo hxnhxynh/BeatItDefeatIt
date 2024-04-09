@@ -35,6 +35,10 @@ class ScreenManager(object):
                                  text="Tutorial", 
                                  position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-50)),
                                  center="both")
+        self.startMenu.addOption(key="test",
+                                 text="Test", 
+                                 position=(vec(RESOLUTION[0]//2, RESOLUTION[1]-30)),
+                                 center="both")
         self.startMenu.addImage((RESOLUTION//2 - vec(0,45)), "logo.png", center="both")
 
 
@@ -131,6 +135,10 @@ class ScreenManager(object):
 
             if choice == "intro":
                 self.state.startIntro()
+
+            if choice == "test":
+                self.game = self.lizStage
+                self.state.startGame()
     
     def update(self, seconds):
         if self.state == "game":
