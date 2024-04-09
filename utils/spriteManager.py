@@ -35,14 +35,16 @@ class SpriteManager(object):
       # Static information about the sprite sizes of particular image sheets.
       _SPRITE_SIZES = {"playerSheet.png": (48,48),
                        "bubbles.png" : (44, 35),
-                       "dialogueBox.png": (600,300)
+                       "dialogueBox.png": (600,300),
+                       "mrSmooth.png": (90,94),
+                       "upDown.png": (100,100)
       }
       
       # A default sprite size
       _DEFAULT_SPRITE = (32,32)
       
       # A list of images that require to be loaded with transparency
-      _TRANSPARENCY = ["playerSheet.png", "dialogueBox.png", "bubbles.png"]
+      _TRANSPARENCY = ["playerSheet.png", "dialogueBox.png", "bubbles.png", "lizardLoungeStageLights.png", "upDown.png", "mrSmooth.png"]
       
       # A list of images that require to be loaded with a color key
       _COLOR_KEY = ["arrowSheet.png","timingBack.png", "cd.png", "timingBar.png", "logo.png", "instructions.png"]
