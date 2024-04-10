@@ -44,7 +44,15 @@ class SpriteManager(object):
       _DEFAULT_SPRITE = (32,32)
       
       # A list of images that require to be loaded with transparency
-      _TRANSPARENCY = ["playerSheet.png", "dialogueBox.png", "bubbles.png", "lizardLoungeStageLights.png", "upDown.png", "mrSmooth.png"]
+      _TRANSPARENCY = ["playerSheet.png", 
+                       "dialogueBox.png", 
+                       "bubbles.png", 
+                       "lizardLoungeStageLights.png", 
+                       "upDown.png", 
+                       "mrSmooth.png",
+                       "LLLights1.png",
+                       "LLLights2.png"
+                       ]
       
       # A list of images that require to be loaded with a color key
       _COLOR_KEY = ["arrowSheet.png","timingBack.png", "cd.png", "timingBar.png", "logo.png", "instructions.png"]
