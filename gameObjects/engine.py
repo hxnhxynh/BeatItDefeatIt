@@ -87,6 +87,7 @@ class LizLoungeEngine(object):
         self.area = "lizLounge"
         self.transition = False
         self.goTo = None
+        self.readyToBattle = False
 
         self.readyToTalk = False
         self.talking = False
@@ -193,10 +194,12 @@ class LizStageEngine(object):
         self.area = "lizStage"
         self.transition = False
         self.goTo = None
+        self.readyToBattle = False
+        self.battleDone = False
 
         self.readyToTalk = False
         self.talking = False
-        self.dialogues = [Dialogue("What are you looking at, idiot?", 
+        self.beforeBattle = [Dialogue("What are you looking at, idiot?", 
                                  color = (76, 65, 100)),
                                  Dialogue("...", begin="p", end="L",
                                  color = (76, 65, 100)),
@@ -235,7 +238,8 @@ class LizStageEngine(object):
                                  Dialogue("OK. Prepare to DIE!!!!", 
                                  color = (76, 65, 100)),
                                  ]
-        self.dialogue = self.dialogues[0]
+        self.afterBattle = Dialogue("Get out of my sight, kid.", color = (76, 65, 100))
+        self.dialogue = self.beforeBattle[0]
         self.currentTalk = 0
         self.bubble = Drawable(self.Mr.position - (-35, 35), "bubbles.png", (0,0))
 
@@ -292,15 +296,21 @@ class LizStageEngine(object):
             self.canGoDown = False
         
         if self.talking:
+
             result = self.dialogue.handleEvent(event)
             if result:
-                self.currentTalk += 1
-                if self.currentTalk >= len(self.dialogues):
+                if self.battleDone:
                     self.talking = False
-                    self.currentTalk = 0
-                    self.dialogue = self.dialogues[0]
                 else:
-                    self.dialogue = self.dialogues[self.currentTalk]
+                    self.currentTalk += 1
+                    if self.currentTalk >= len(self.beforeBattle):
+                        self.transition = True
+                        self.readyToBattle = True
+                        self.talking = False
+                        self.dialogue = self.afterBattle
+                        self.battleDone = True
+                    else:
+                        self.dialogue = self.beforeBattle[self.currentTalk]
         else:
             self.player.handleEvent(event)
 
@@ -313,7 +323,82 @@ class LizStageEngine(object):
             self.hitboxes[i].update(self.hitPos[i])
 
         self.playerHit.update(self.player.position)
+
+class LizBattle(object):
+    import pygame
+
+    def __init__(self):
+        self.paused = False   
+        self.complete = False 
+        self.transition = False
+        self.size = vec(*RESOLUTION)
+
+        self.player = Animated((450,190), "playerSheet.png")
+        self.player.framesPerSecond = 2
+        self.player.nFrames = 4
+        self.player.flipImage[0] = True
+
+        self.Mr = Animated((100, 144),"mrSmooth.png")
+        self.Mr.nFrames = 4
+        self.Mr.framesPerSecond = 4
+
+        self.background = Drawable((0,0), "lizardLoungeStage.png")
+        self.lLight = Drawable((0,0), "LLLights1.png")
+        self.rLight = Drawable((0,0), "LLLights2.png")
         
+        self.area = "lizStage"
+        self.transition = False
+        self.goTo = None
+        
+        self.playerTurn = True
+
+        self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
+        self.font2 = pygame.font.SysFont("Arial Black", 15)
+
+        self.box = Drawable((0,0), "instructions.png")
+        self.start = False
+        self.step1 = self.font2.render("1. Press the keys in order.", False, (255, 255, 255))
+        self.step2 = self.font2.render("2. Press the space bar when reaching the middle of the CD.", False, (255, 255, 255))
+        self.testSeq = Sequence(vec(50, 90), 5)
+        self.testBar = TimingBar(vec(50, 197))
+        self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
+        self.okHitBox = rectAdd((460, 250), self.ok.get_rect())
+    
+    def draw(self, drawSurface):
+        self.background.draw(drawSurface)
+        self.Mr.draw(drawSurface)
+        self.player.draw(drawSurface)
+
+        if self.start:
+            if self.playerTurn:
+                self.rLight.draw(drawSurface)
+            else:
+                self.lLight.draw(drawSurface)
+        else:
+            self.box.draw(drawSurface)
+
+            drawSurface.blit(self.step1, (36, 67))
+            drawSurface.blit(self.step2, (36, 167))
+
+            self.testSeq.draw(drawSurface)
+            self.testBar.draw(drawSurface)
+
+            drawSurface.blit(self.ok, (480, 250))
+        
+    def handleEvent(self, event):
+        if self.okHitBox.collidepoint(vec(*pygame.mouse.get_pos())//SCALE):
+            self.ok = self.font2.render("Let's play!", False, (0, 0, 0))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.start = True
+        else:
+            self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
+
+    def update(self, seconds):
+        if self.start:
+            self.player.update(seconds)
+            self.Mr.update(seconds)
+        else:
+            self.testBar.update(seconds)
 
 class TutorialEngine(object):
     import pygame
@@ -321,6 +406,7 @@ class TutorialEngine(object):
     def __init__(self):   
         self.paused = False   
         self.complete = False 
+        self.transition = False
         self.size = vec(*RESOLUTION)
         self.background = Drawable((0,0), "dasKlubBackground.png")
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
@@ -333,6 +419,7 @@ class TutorialEngine(object):
         self.testSeq = Sequence(vec(50, 90), 5)
         self.testBar = TimingBar(vec(50, 197))
         self.ok = self.font2.render("Let's play!", False, (255, 255, 255))
+        self.okHitBox = rectAdd((460, 250), self.ok.get_rect())
     
     def draw(self, drawSurface):        
         self.background.draw(drawSurface)
@@ -346,7 +433,6 @@ class TutorialEngine(object):
         self.testBar.draw(drawSurface)
 
         drawSurface.blit(self.ok, (480, 250))
-        self.okHitBox = rectAdd((460, 250), self.ok.get_rect())
             
 
     def handleEvent(self, event):
@@ -372,14 +458,14 @@ class TutGameEngine(object):
         self.font1 =  pygame.font.SysFont("Harlow Solid", 15)
         self.font2 = pygame.font.SysFont("Arial Black", 15)
 
-        self.waitingForBeats = True
-        self.waitingForMusic = False
-        self.wait = 4
+        self.waitingForBeats = False
+        self.waitingForMusic = True
+        self.wait = 10
         self.timer = 0
         self.musicTimer = 0
         self.sequence = Sequence(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,-40)),
                                   NUMARROWS)
-        self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)), 60)
+        self.timingBar = TimingBar(((RESOLUTION/2)-(SEQUENCE_SIZE[0]/2,0)), 52)
         self.points = 0
         self.pointDisplay = self.font1.render("Score count: 0",
                                              False,
@@ -405,13 +491,14 @@ class TutGameEngine(object):
     
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
-        self.timingBar.draw(drawSurface)
-        if self.waitingForBeats:
-            if self.timer >= self.wait:
-                self.waitingForBeats = False
-                self.timingBar.bar.play = True
-        else:
+        if not self.waitingForMusic:
+            self.timingBar.draw(drawSurface)
             self.sequence.draw(drawSurface)
+            self.timingBar.bar.play = True
+        #if self.waitingForBeats:
+            #if self.timer >= self.wait:
+                #self.waitingForBeats = False
+                #self.timingBar.bar.play = True
                 
         drawSurface.blit(self.pointDisplay, (0,0))
         scoreType =  self.timingBar.scoreType
@@ -446,14 +533,14 @@ class TutGameEngine(object):
     def update(self, seconds):
         if self.waitingForMusic:
             self.musicTimer += seconds
-            if self.musicTimer > 3:
+            if self.musicTimer > 7:
                 self.waitingForMusic = False
-                sm = SoundManager.getInstance()
-                sm.playBGM("Disco 60 BPM.mp3")
-        if self.waitingForBeats:
-            self.timer += seconds
+                #sm = SoundManager.getInstance()
+                #sm.playBGM("Disco  Drum Metronome Loop  60 BPM.mp3")
+        #if self.waitingForBeats:
+        #    self.timer += seconds
 
-        if not self.paused:
+        if not self.waitingForMusic:
             self.timingBar.update(seconds)
 
 
