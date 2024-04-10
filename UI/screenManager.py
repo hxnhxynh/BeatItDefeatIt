@@ -1,7 +1,7 @@
 from FSMs import ScreenManagerFSM, MovementFSM
 from . import TextEntry, MouseMenu
 from utils import vec, RESOLUTION, SoundManager
-from gameObjects.engine import LizLoungeEngine, LizStageEngine, TutorialEngine, TutGameEngine, IntroEngine
+from gameObjects.engine import LizLoungeEngine, LizStageEngine, LizBattle, TutorialEngine, TutGameEngine, IntroEngine
 from gameObjects.drawable import Drawable
 from pygame.locals import *
 import pygame
@@ -16,6 +16,7 @@ class ScreenManager(object):
         self.tutorial = TutorialEngine()
         self.tutGame = TutGameEngine()
         self.state = ScreenManagerFSM(self)
+        self.lizBattle = LizBattle()
 
         # transitions in between game locations
         self.fading = False
@@ -87,6 +88,14 @@ class ScreenManager(object):
                         self.game = self.lizLounge
                         MovementFSM.WORLD_SIZE = vec(1000,300)
                         self.fading = True
+
+                    elif self.game.readyToBattle:
+                        self.game.readyToBattle = False
+                        self.game.transition = False
+                        self.game = self.lizBattle
+                        Drawable.CAMERA_OFFSET = vec(0,0)
+                        MovementFSM.WORLD_SIZE = vec(600,300)
+                        self.fading = True
                         
             
             self.game.handleEvent(event)
@@ -111,6 +120,8 @@ class ScreenManager(object):
                     self.tutorial.paused = True
             elif self.tutorial.complete:
                 self.state.startTutGame()
+                sm = SoundManager.getInstance()
+                sm.playBGM("Disco  Drum Metronome Loop  60 BPM.mp3")
             else:
                 if not self.tutorial.paused:
                     self.tutorial.handleEvent(event)
@@ -137,7 +148,7 @@ class ScreenManager(object):
                 self.state.startIntro()
 
             if choice == "test":
-                self.game = self.lizStage
+                self.game = self.lizBattle
                 self.state.startGame()
     
     def update(self, seconds):
