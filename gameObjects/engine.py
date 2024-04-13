@@ -129,7 +129,7 @@ class Ending(object):
 
     def __init__(self):
         self.size = vec(*RESOLUTION)
-        self.background = Drawable((0,0), "background.png")
+        self.background = Drawable((0,0), "ending.png")
         self.area = "ending"
         self.transition = False
         self.goTo = None
@@ -150,7 +150,7 @@ class DasKlub(object):
 
     def __init__(self):
         self.size = vec(*RESOLUTION)
-        self.background = Drawable((0,0), "background.png")
+        self.background = Drawable((0,0), "dasKlubOff.png")
         self.area = "dasKlub"
         self.transition = False
         self.goTo = None
@@ -167,7 +167,7 @@ class DasKlub(object):
         self.dialogues = [Dialogue("I see you've come for me.", begin="K",color = (76, 65, 100)),
                           Dialogue("Let us not waste any time.", begin="K",color = (76, 65, 100)),
                           Dialogue("!!!", begin="P", end="K",color = (76, 65, 100)),
-                          Dialogue("DJ...turn it back on.", begin="K",color = (76, 65, 100)),
+                          Dialogue("DJ...turn the lights on.", begin="K",color = (76, 65, 100)),
                           Dialogue("Oh wait! That's me!", begin="K",color = (76, 65, 100)),
                           Dialogue("...", begin="P", end="K",color = (76, 65, 100))]
         self.dialogue = self.dialogues[0]
@@ -185,7 +185,7 @@ class DasKlub(object):
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
         self.LK.draw(drawSurface)
-        self.lkHit.draw(drawSurface)
+        #self.lkHit.draw(drawSurface)
 
         if self.readyToTalk:
             self.bubble.draw(drawSurface)
@@ -194,7 +194,7 @@ class DasKlub(object):
             self.leaveBubble.draw(drawSurface)
 
         self.player.draw(drawSurface)
-        self.playerHit.draw(drawSurface)
+        #self.playerHit.draw(drawSurface)
 
         if self.talking:
             self.dialogue.draw(drawSurface)
@@ -268,7 +268,7 @@ class DasBattle(object):
         self.LK.framesPerSecond = 4
 
         self.background = Drawable((0,0), "dasKlubBackground.png")
-        self.lLight = Drawable((0,0), "LLLights1.png")
+        self.lLight = Drawable((0,10), "LLLights1.png")
         self.rLight = Drawable((0,0), "LLLights2.png")
         
         self.area = "dasKlub"
@@ -328,7 +328,7 @@ class DasBattle(object):
 
         
             if self.playerTurn:
-                self.lLight.draw(drawSurface)
+                #self.lLight.draw(drawSurface)
                 if self.timer >= 2.5:
                     self.sequence.draw(drawSurface)
                     self.timingBar.draw(drawSurface)
@@ -350,12 +350,11 @@ class DasBattle(object):
             self.sequence.handleEvent(event)
             self.timingBar.handleEvent(event)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
-                #sm = SoundManager.getInstance()
-                #sm.fadeoutBGM()
-                #self.complete = True
-                #self.transition = True
-                #self.goTo = "ratShack"
-                print(self.timer)
+                sm = SoundManager.getInstance()
+                sm.fadeoutBGM()
+                self.complete = True
+                self.transition = True
+                self.goTo = "ending"
             if self.sequence.complete:
                 if self.timingBar.complete: # if sequence is completed and space bar is hit
                     self.timingBar.complete = False
@@ -366,7 +365,7 @@ class DasBattle(object):
                                                         False,
                                                         (255,255,255)) 
                     sm = SoundManager.getInstance()
-                    sm.playSFX("ouch.wav")       
+                    sm.playSFX("slap.wav")       
             else:
                 if self.timingBar.complete:
                     self.timingBar.complete = False
@@ -391,7 +390,7 @@ class DasBattle(object):
             if self.waitingForBeats:
                 if self.timer >= .66:
                     self.waitingForBeats = False
-                    self.timingBar.bar.play = True
+                    #self.timingBar.bar.play = True
                     sm = SoundManager.getInstance()
                     sm.playBGM("Techno 120 BPM.mp3")
             
@@ -413,7 +412,6 @@ class DasBattle(object):
             elif self.timer >= 120:
                 sm = SoundManager.getInstance()
                 sm.fadeoutBGM()
-                self.finish = True
                 self.complete = True
                 self.transition = True
                 self.goTo = "ending"
@@ -423,7 +421,7 @@ class RatShack(object):
 
     def __init__(self):
         self.size = vec(*RESOLUTION)
-        self.background = Drawable((0,0), "background.png")
+        self.background = Drawable((0,0), "ratShack.png")
         self.area = "ratShack"
         self.transition = False
         self.goTo = None
@@ -483,7 +481,7 @@ class RatShack(object):
                                  color = (76, 65, 100)),
                                  Dialogue("...", end="B", begin="P",
                                  color = (76, 65, 100)),
-                                 Dialogue("Anyways, the culture has been\ndifferent. Ever since that lil'\nGerman boy came in town.", begin="B", 
+                                 Dialogue("Anyways, the culture has been\ndifferent. Ever since that lil'\DJ boy came in town.", begin="B", 
                                  color = (76, 65, 100)),
                                  Dialogue("..!", end="B", begin="P",
                                  color = (76, 65, 100)),
@@ -537,7 +535,7 @@ class RatShack(object):
     def draw(self, drawSurface):
         self.background.draw(drawSurface)
         self.ladyB.draw(drawSurface)
-        self.ladyHit.draw(drawSurface)
+        #self.ladyHit.draw(drawSurface)
 
         if self.readyToTalk:
             self.bubble.draw(drawSurface)
@@ -546,7 +544,7 @@ class RatShack(object):
             self.leaveBubble.draw(drawSurface)
 
         self.player.draw(drawSurface)
-        self.playerHit.draw(drawSurface)
+        #self.playerHit.draw(drawSurface)
 
         if self.talking:
             self.dialogue.draw(drawSurface)
@@ -619,7 +617,7 @@ class RatBattle(object):
         self.ladyB.nFrames = 4
         self.ladyB.framesPerSecond = 4
 
-        self.background = Drawable((0,0), "background.png")
+        self.background = Drawable((0,0), "ratShack.png")
         self.lLight = Drawable((0,0), "LLLights1.png")
         self.rLight = Drawable((0,0), "LLLights2.png")
         
@@ -677,7 +675,7 @@ class RatBattle(object):
 
     
         if self.playerTurn:
-            self.lLight.draw(drawSurface)
+            #self.lLight.draw(drawSurface)
             if self.timer >= 2.5:
                 self.sequence.draw(drawSurface)
                 self.timingBar.draw(drawSurface)
@@ -696,12 +694,11 @@ class RatBattle(object):
         self.sequence.handleEvent(event)
         self.timingBar.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
-            #sm = SoundManager.getInstance()
-            #sm.fadeoutBGM()
-            #self.complete = True
-            #self.transition = True
-            #self.goTo = "ratShack"
-            print(self.timer)
+            sm = SoundManager.getInstance()
+            sm.fadeoutBGM()
+            self.complete = True
+            self.transition = True
+            self.goTo = "ratShack"
         if self.sequence.complete:
             if self.timingBar.complete: # if sequence is completed and space bar is hit
                 self.timingBar.complete = False
@@ -712,7 +709,7 @@ class RatBattle(object):
                                                     False,
                                                     (255,255,255)) 
                 sm = SoundManager.getInstance()
-                sm.playSFX("ouch.wav")       
+                sm.playSFX("bloop.wav")       
         else:
             if self.timingBar.complete:
                 self.timingBar.complete = False
@@ -734,7 +731,7 @@ class RatBattle(object):
         if self.waitingForBeats:
             if self.timer >= .66:
                 self.waitingForBeats = False
-                self.timingBar.bar.play = True
+                #self.timingBar.bar.play = True
                 sm = SoundManager.getInstance()
                 sm.playBGM("Country 90 BPM.mp3")
         
@@ -1186,7 +1183,7 @@ class LizBattle(object):
             if self.waitingForBeats:
                 if self.timer >= 1.5:
                     self.waitingForBeats = False
-                    self.timingBar.bar.play = True
+                    #self.timingBar.bar.play = True
             
             self.timingBar.update(seconds)
             
@@ -1355,7 +1352,7 @@ class TutGameEngine(object):
             self.timer += seconds
             if self.timer >= 1.5:
                 self.waitingForBeats = False
-                self.timingBar.bar.play = True
+                #self.timingBar.bar.play = True
         else:
             self.timingBar.update(seconds)
 

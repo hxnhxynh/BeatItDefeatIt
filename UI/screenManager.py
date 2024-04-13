@@ -123,14 +123,6 @@ class ScreenManager(object):
                         Drawable.CAMERA_OFFSET = vec(0,0)
                         MovementFSM.WORLD_SIZE = vec(600,300)
                         self.fading = True
-                elif self.game.area == "dasKlub":
-                        if self.game.readyToBattle:
-                            self.game.readyToBattle = False
-                            self.game.transition = False
-                            self.game = self.dasBattle
-                            Drawable.CAMERA_OFFSET = vec(0,0)
-                            MovementFSM.WORLD_SIZE = vec(600,300)
-                            self.fading = True
 
                 elif self.game.area == "map":
                     if self.game.goTo == "lizLounge":
@@ -151,7 +143,7 @@ class ScreenManager(object):
                     elif self.game.goTo == "dasKlub":
                         self.game.goTo = None
                         self.game.transition = False
-                        self.game = self.ratShack
+                        self.game = self.dasKlub
                         Drawable.CAMERA_OFFSET = vec(0,0)
                         MovementFSM.WORLD_SIZE = vec(600,300)
                         self.fading = True
@@ -183,7 +175,15 @@ class ScreenManager(object):
                         self.fading = True
 
                 elif self.game.area == "dasKlub":
-                    if self.game.readyToBattle:
+                    if self.game.goTo == "map":   
+                        self.game.goTo = None
+                        self.game.transition = False
+                        self.game = self.map
+                        Drawable.CAMERA_OFFSET = vec(0,0)
+                        MovementFSM.WORLD_SIZE = vec(600,300)
+                        self.fading = True
+
+                    elif self.game.readyToBattle:
                         self.game.readyToBattle = False
                         self.game.transition = False
                         self.game = self.dasBattle
@@ -195,7 +195,6 @@ class ScreenManager(object):
                         self.game.goTo = None
                         self.game.transition = False
                         self.game = self.ending 
-                        self.map.dkUnlocked = True
                         Drawable.CAMERA_OFFSET = vec(0,0)
                         MovementFSM.WORLD_SIZE = vec(600,300)
                         self.fading = True
@@ -215,6 +214,9 @@ class ScreenManager(object):
         elif self.state in ["tutorial"]:
             if event.type == KEYDOWN and event.key == K_m:
                 self.state.quitTutorial()
+                sm = SoundManager.getInstance()
+                sm.fadeoutBGM()
+
             elif event.type == KEYDOWN and event.key == K_p:
                 if self.tutorial.paused:
                     self.tutorial.paused = False
@@ -222,7 +224,7 @@ class ScreenManager(object):
                     self.tutorial.paused = True
             elif self.tutorial.complete:
                 self.state.startTutGame()
-                self.tutGame.timingBar.bar.play = True
+                #self.tutGame.timingBar.bar.play = True
                 sm = SoundManager.getInstance()
                 sm.playBGM("Jazz 120 BPM.mp3")
             else:
