@@ -10,12 +10,12 @@ class ScreenManagerFSM(AbstractGameFSM):
     tutGame = State()
 
     pause = game.to(paused) | paused.to(game) | startMenu.to.itself(internal=True) | tutorial.to(paused) | paused.to(tutorial) | tutGame.to(paused) | paused.to(tutGame)\
-        |intro.to(paused) | paused.to(intro)
+        |intro.to(paused) | paused.to(intro) 
 
     startIntro = startMenu.to(intro)
     quitIntro = intro.to(startMenu) | paused.to.itself(internal=True)
 
-    startGame = intro.to(game)
+    startGame = intro.to(game) | startMenu.to(game)
     quitGame = game.to(startMenu) | paused.to.itself(internal=True)
 
     startTutorial = startMenu.to(tutorial)

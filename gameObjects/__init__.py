@@ -2,6 +2,10 @@ from .drawable import *
 from .animated import *
 from .interpolate import *
 from .mobile import *
+from .dialogue import *
+from .player import *
+from .npc import *
+from .hitbox import *
 from .sequence import *
 from .timingBar import *
 from .engine import *
