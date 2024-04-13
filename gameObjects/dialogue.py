@@ -15,16 +15,28 @@ class Dialogue(Drawable):
     FONTS = {"default" : pygame.font.Font(os.path.join(FONT_FOLDER, DEFAULT_FONT), DEFAULT_SIZE)
              }
     
-    def __init__(self, text, font="default", color=(255,255,255), begin="NPC", end="Player"):
+    def __init__(self, text, font="default", color=(255,255,255), begin="NPC", end="P"):
         self.position = vec(40, 210)
         self.text = text
         self.sentences = self.text.split('\n') 
         self.font = font
         self.color = color
-        if begin != "NPC": 
+
+        if begin == "NPC":
             self.box = Drawable((0,0), "dialogueBox.png", (0,0))
-        else:
-            self.box = Drawable((0,0), "dialogueBox.png", (1,0))
+        elif begin == "L" and end == "P":
+            self.box = Drawable((0,0), "dialogueBox.png", (1,1))
+        elif begin == "P" and end == "L":
+            self.box = Drawable((0,0), "dialogueBox.png", (0,1))
+        elif begin == "B" and end == "P":
+            self.box = Drawable((0,0), "dialogueBox.png", (0,2))
+        elif begin == "P" and end == "B":
+            self.box = Drawable((0,0), "dialogueBox.png", (1,2))
+        elif begin == "K" and end == "P":
+            self.box = Drawable((0,0), "dialogueBox.png", (1,3))
+        elif begin == "P" and end == "K":
+            self.box = Drawable((0,0), "dialogueBox.png", (0,3))
+
         self.limit = (560,270)
         self.next = None
         

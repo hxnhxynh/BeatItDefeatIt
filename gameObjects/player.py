@@ -7,8 +7,11 @@ import numpy as np
 
 class Player(Mobile):
     
-    def __init__(self, position):
-        super().__init__(position, "playerSheet.png")
+    def __init__(self, position, head=False):
+        if head:
+           super().__init__(position, "playerHead.png")
+        else:
+            super().__init__(position, "playerSheet.png")
 
         self.framesPerSecond = 2
         self.nFrames = 8

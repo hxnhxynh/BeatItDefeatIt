@@ -51,6 +51,18 @@ class Sequence(object):
    def update(self, seconds):
       pass
 
+   def refresh(self):
+      newSeq = []
+      position = self.position
+      for i in range(self.num):
+         direction = randint(0,3)
+         newSeq.append((Drawable(position, \
+                                       "arrowSheet.png",\
+                                       self.arrows[direction][1]),
+                              self.arrows[direction]))
+         position += (33, 0)
+      self.sequence = newSeq
+
    def draw(self, drawSurface):
       for i in range(self.num):
          arrow = self.sequence[i][0]

@@ -37,7 +37,12 @@ class SpriteManager(object):
                        "bubbles.png" : (44, 35),
                        "dialogueBox.png": (600,300),
                        "mrSmooth.png": (90,94),
-                       "upDown.png": (100,100)
+                       "upDown.png": (100,100),
+                       "map.png":(600,300),
+                       "ladyB.png": (54, 86),
+                       "playerHead.png": (48,48),
+                       "ouch.png": (100,36),
+                       "lautstarK.png":(48, 90)
       }
       
       # A default sprite size
@@ -51,7 +56,11 @@ class SpriteManager(object):
                        "upDown.png", 
                        "mrSmooth.png",
                        "LLLights1.png",
-                       "LLLights2.png"
+                       "LLLights2.png",
+                       "ladyB.png",
+                       "playerHead.png",
+                       "ouch.png",
+                       "lautstarK.png"
                        ]
       
       # A list of images that require to be loaded with a color key
