@@ -407,7 +407,7 @@ class DasBattle(object):
                 self.bubble = self.bubbles[4]
             elif self.timer >=69 and self.timer <80:
                 self.bubble = self.bubbles[5]
-            elif self.timer >=80 and self.timer <90:
+            elif self.timer >=80 and self.timer <120:
                 self.bubble = self.bubbles[6]
             elif self.timer >= 120:
                 sm = SoundManager.getInstance()
@@ -481,7 +481,7 @@ class RatShack(object):
                                  color = (76, 65, 100)),
                                  Dialogue("...", end="B", begin="P",
                                  color = (76, 65, 100)),
-                                 Dialogue("Anyways, the culture has been\ndifferent. Ever since that lil'\DJ boy came in town.", begin="B", 
+                                 Dialogue("Anyways, the culture has been\ndifferent. Ever since that lil'\nDJ boy came in town.", begin="B", 
                                  color = (76, 65, 100)),
                                  Dialogue("..!", end="B", begin="P",
                                  color = (76, 65, 100)),

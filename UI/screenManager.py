@@ -117,7 +117,7 @@ class ScreenManager(object):
                         self.lizLounge.canLeave = True
                         self.lizLounge.dialogues = [Dialogue("I can't believe you did that...\nMy hero...", 
                                  color = (76, 65, 100)),
-                                 Dialogue("You need to go somewhere safe...\nLike Rattleshack Shack!", 
+                                 Dialogue("You need to go somewhere safe...\nLike Rattlesnake Shack!", 
                                  color = (76, 65, 100))]
                         self.lizLounge.dialogue = self.lizLounge.dialogues[0]
                         Drawable.CAMERA_OFFSET = vec(0,0)
